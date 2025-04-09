@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-light: #a5b4fc;
+            --primary-dark: #4f46e5;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --gray: #64748b;
+            --light-gray: #e2e8f0;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius: 12px;
+            --radius-sm: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            color: var(--dark);
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .quiz-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quiz-header::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            transform: rotate(30deg);
+        }
+
+.logo-left, .logo-right {
+    position: absolute;
+    top: 20px;
+    height: 50px;
+    width: auto;
+    z-index: 10;
+    opacity: 0.9;
+}
+
+.logo-left {
+    left: 20px;
+}
+
+.logo-right {
+    right: 20px;
+}
+
+
+        .quiz-header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            position: relative;
+        }
+
+        .quiz-header p {
+            font-weight: 300;
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        .quiz-body {
+            padding: 2rem;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            animation: slideIn 0.3s ease-out;
+            border-left: 4px solid transparent;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .alert-success {
+            background-color: rgba(16, 185, 129, 0.1);
+            border-left-color: var(--success);
+            color: var(--success);
+        }
+
+        .alert-danger {
+            background-color: rgba(239, 68, 68, 0.1);
+            border-left-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.95rem;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 0.9rem 1.25rem;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+            color: var(--dark);
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+            outline: none;
+        }
+
+        input[readonly], input[disabled] {
+            background-color: #f8fafc;
+            cursor: not-allowed;
+            color: var(--gray);
+        }
+
+        .question {
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+            border: 1px solid var(--light-gray);
+        }
+
+        .question:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
+            border-color: var(--primary-light);
+        }
+
+        .question strong {
+            display: block;
+            margin-bottom: 1.25rem;
+            font-size: 1.1rem;
+            color: var(--dark);
+        }
+
+        .feedback {
+            margin-top: 0.75rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+        }
+
+        .correct {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .wrong {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            text-transform: none;
+            letter-spacing: normal;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-block {
+            display: flex;
+            width: 100%;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background: var(--light-gray);
+            border-radius: 4px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 4px;
+            transition: width 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                90deg,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.3) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .score-display {
+            text-align: center;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            background: var(--light);
+            font-weight: 600;
+        }
+
+        .score-value {
+            font-size: 1.5rem;
+            color: var(--primary-dark);
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .quiz-header {
+                padding: 1.5rem;
+            }
+
+            .quiz-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .quiz-body {
+                padding: 1.5rem;
+            }
+
+            .logo {
+                height: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="quiz-header">
+            <!-- Floating corner logos -->
+<img src="{{ url_for('static', filename='images/college.jpg') }}" alt="Left Logo" class="logo-left">
+<img src="{{ url_for('static', filename='images/it.jpg') }}" alt="Right Logo" class="logo-right">
+
+            <h1>Knowledge Assessment</h1>
+            <p>Test your understanding and track your progress</p>
+        </div>
+
+        <div class="quiz-body">
+            {% if duplicate %}
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <div>
+                        <strong>{{ name }}, you've already completed this assessment!</strong>
+                        <p class="small">Duplicate submissions are not allowed.</p>
+                    </div>
+                </div>
+            {% elif submitted %}
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i>
+                    <div>
+                        <strong>Thank you {{ name }}!</strong>
+                        <p>Your assessment has been submitted successfully.</p>
+                    </div>
+                </div>
+
+                <div class="score-display">
+                    <div>Your Score</div>
+                    <div class="score-value">{{ score }}/{{ questions|length }}</div>
+                </div>
+            {% endif %}
+
+            <div class="progress-container">
+                <div class="progress-bar" style="width: {% if submitted or duplicate %}100{% else %}0{% endif %}%"></div>
+            </div>
+
+            <form action="/submit" method="post">
+                <div class="form-group">
+                    <label for="name"><i class="fas fa-user"></i> Your Name</label>
+                    <input type="text" id="name" name="name" required
+                           {% if submitted or duplicate %} value="{{ name }}" readonly {% endif %}
+                           placeholder="Enter your full name">
+                </div>
+
+                <div class="form-group">
+                    <label for="urn"><i class="fas fa-id-card"></i> Student ID</label>
+                    <input type="text" id="urn" name="urn" required
+                           {% if submitted or duplicate %} value="{{ urn }}" readonly {% endif %}
+                           placeholder="Enter your university ID number">
+                </div>
+
+                {% for question in questions %}
+                    <div class="question">
+                        <strong><i class="fas fa-question-circle"></i> Question {{ loop.index }}: {{ question }}</strong>
+
+                        <input type="text" name="{{ question }}"
+                               {% if submitted %}
+                                    value="{{ results[question]['user_answer'] }}"
+                                    readonly
+                               {% elif duplicate %}
+                                    disabled
+                               {% endif %}
+                               required
+                               placeholder="Type your answer here...">
+
+                        {% if submitted %}
+                            <div class="feedback {% if results[question]['is_correct'] %}correct{% else %}wrong{% endif %}">
+                                <i class="fas {% if results[question]['is_correct'] %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
+                                {% if results[question]['is_correct'] %}
+                                    Correct answer! Good job!
+                                {% else %}
+                                    Expected answer: <strong>{{ results[question]['correct_answer'] }}</strong>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                {% if not submitted and not duplicate %}
+                    <button type="submit" class="btn btn-block">
+                        <i class="fas fa-paper-plane"></i> Submit Assessment
+                    </button>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</body>
+</html>
