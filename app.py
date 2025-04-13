@@ -37,13 +37,25 @@ questions = {
     "What do bees make?": "Honey",
     "What is the freezing point of water in Celsius?": "0",
     "What is 10 x 10?": "100"
-
 }
 
-DATA_FILE = 'data.json'
+DATA_FILE = 'data.jsonl'
 if not os.path.exists(DATA_FILE):
-    with open(DATA_FILE, 'w') as f:
-        json.dump([], f)
+    open(DATA_FILE, 'w').close()
+
+def read_jsonl():
+    data = []
+    with open(DATA_FILE, 'r') as f:
+        for line in f:
+            try:
+                data.append(json.loads(line.strip()))
+            except json.JSONDecodeError:
+                pass
+    return data
+
+def write_jsonl_entry(entry):
+    with open(DATA_FILE, 'a') as f:
+        f.write(json.dumps(entry) + '\n')
 
 @app.route('/')
 def index():
@@ -56,12 +68,9 @@ def submit():
     urn = request.form.get('urn')
     asked_questions = {q: questions[q] for q in request.form if q in questions}
 
+    data = read_jsonl()
 
-    # Load existing data
-    with open(DATA_FILE, 'r') as f:
-        data = json.load(f)
-
-    # Check for duplicate submission
+    # Check for duplicate
     for entry in data:
         if entry['name'] == name or entry['urn'] == urn:
             return render_template(
@@ -75,10 +84,7 @@ def submit():
     score = 0
     results = {}
 
-
-
     for question, correct_answer in asked_questions.items():
-
         user_answer = request.form.get(question)
         is_correct = (user_answer.strip().lower() == correct_answer.lower())
         results[question] = {
@@ -89,13 +95,9 @@ def submit():
         if is_correct:
             score += 1
 
-    # Add new result
-    data.append({"name": name, "urn": urn, "marks": score})
-    data.sort(key=lambda x: x["marks"], reverse=True)
-
-    # Save updated results
-    with open(DATA_FILE, 'w') as f:
-        json.dump(data, f, indent=4)
+    # Save result
+    new_entry = {"name": name, "urn": urn, "marks": score}
+    write_jsonl_entry(new_entry)
 
     return render_template(
         'index.html',
