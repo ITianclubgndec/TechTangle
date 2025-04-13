@@ -66,19 +66,21 @@ def index():
 def submit():
     name = request.form.get('name')
     urn = request.form.get('urn')
+    email = request.form.get('email') 
     asked_questions = {q: questions[q] for q in request.form if q in questions}
 
     data = read_jsonl()
 
     # Check for duplicate
     for entry in data:
-        if entry['name'] == name or entry['urn'] == urn:
+        if entry['name'] == name or entry['urn'] == urn or entry['email']==email:
             return render_template(
                 'index.html',
                 questions=asked_questions,
                 duplicate=True,
                 name=name,
-                urn=urn
+                urn=urn,
+                email=email
             )
 
     score = 0
@@ -96,7 +98,7 @@ def submit():
             score += 1
 
     # Save result
-    new_entry = {"name": name, "urn": urn, "marks": score}
+    new_entry = {"name": name, "urn": urn,"email":email, "marks": score}
     write_jsonl_entry(new_entry)
 
     return render_template(
@@ -105,7 +107,9 @@ def submit():
         submitted=True,
         results=results,
         name=name,
-        urn=urn
+        urn=urn,
+        email=email,
+        score=score
     )
 
 if __name__ == '__main__':

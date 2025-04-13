@@ -99,7 +99,7 @@
       .logo-right {
         position: absolute;
         top: 20px;
-        height: 50px;
+        height: 70px;
         width: auto;
         z-index: 10;
         opacity: 0.9;
@@ -314,6 +314,14 @@
         );
         animation: shimmer 1.5s infinite;
       }
+      .progress-bar.filled {
+  width: 100%;
+}
+
+.progress-bar.empty {
+  width: 0%;
+}
+
 
       @keyframes shimmer {
         0% {
@@ -356,10 +364,35 @@
           padding: 1.5rem;
         }
 
-        .logo {
-          height: 30px;
-        }
+        .logo-left,
+  .logo-right {
+    height: 60px;
+    top: 10px;
+  }
+
+  .logo-left {
+    left: 10px;
+  }
+
+  .logo-right {
+    right: 10px;
+  }
       }
+      @media (max-width: 480px) {
+  .logo-left,
+  .logo-right {
+    height: 40px;
+    top: 8px;
+  }
+
+  .logo-left {
+    left: 6px;
+  }
+
+  .logo-right {
+    right: 6px;
+  }
+}
     </style>
   </head>
   <body>
@@ -377,8 +410,8 @@
           class="logo-right"
         />
 
-        <h1>Knowledge Assessment</h1>
-        <p>Test your understanding and track your progress</p>
+        <h1>Quizph0nic</h1>
+        <p>Get wired in or get wiped out!!</p>
       </div>
 
       <div class="quiz-body">
@@ -408,12 +441,9 @@
         {% endif %}
 
         <div class="progress-container">
-          <div
-            class="progress-bar"
-            style="width: {% if submitted or duplicate %}100{% else %}0{% endif %}%"
-          ></div>
+          <div class="progress-bar {% if submitted or duplicate %}filled{% else %}empty{% endif %}"></div>
         </div>
-
+        
         <form action="/submit" method="post">
           <div class="form-group">
             <label for="name"><i class="fas fa-user"></i> Your Name</label>
@@ -458,6 +488,21 @@
               placeholder="Enter your university ID number"
             />
           </div>
+          <div class="form-group">
+            <label for="email"><i class="fas fa-envelope"></i> Email</label>
+            <input
+              type="text"
+              id="email"
+              name="email"
+              required
+              {% if submitted or duplicate %}
+              value="{{ email }}"
+              readonly
+              {% endif %}
+              placeholder="Enter your email address"
+            />
+          </div>
+          
 
           {% for question in questions %}
           <div class="question">
@@ -495,8 +540,6 @@
                 class="fas {% if results[question]['is_correct'] %}fa-check-circle{% else %}fa-times-circle{% endif %}"
               ></i>
               {% if results[question]['is_correct'] %} Correct answer! Good job!
-              {% else %} Expected answer:
-              <strong>{{ results[question]['correct_answer'] }}</strong>
               {% endif %}
             </div>
             {% endif %}
