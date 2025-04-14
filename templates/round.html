@@ -315,13 +315,12 @@
         animation: shimmer 1.5s infinite;
       }
       .progress-bar.filled {
-  width: 100%;
-}
+        width: 100%;
+      }
 
-.progress-bar.empty {
-  width: 0%;
-}
-
+      .progress-bar.empty {
+        width: 0%;
+      }
 
       @keyframes shimmer {
         0% {
@@ -365,34 +364,34 @@
         }
 
         .logo-left,
-  .logo-right {
-    height: 60px;
-    top: 10px;
-  }
+        .logo-right {
+          height: 60px;
+          top: 10px;
+        }
 
-  .logo-left {
-    left: 10px;
-  }
+        .logo-left {
+          left: 10px;
+        }
 
-  .logo-right {
-    right: 10px;
-  }
+        .logo-right {
+          right: 10px;
+        }
       }
       @media (max-width: 480px) {
-  .logo-left,
-  .logo-right {
-    height: 40px;
-    top: 8px;
-  }
+        .logo-left,
+        .logo-right {
+          height: 40px;
+          top: 8px;
+        }
 
-  .logo-left {
-    left: 6px;
-  }
+        .logo-left {
+          left: 6px;
+        }
 
-  .logo-right {
-    right: 6px;
-  }
-}
+        .logo-right {
+          right: 6px;
+        }
+      }
     </style>
   </head>
   <body>
@@ -441,109 +440,120 @@
         {% endif %}
 
         <div class="progress-container">
-          <div class="progress-bar {% if submitted or duplicate %}filled{% else %}empty{% endif %}"></div>
+          <div
+            class="progress-bar {% if submitted or duplicate %}filled{% else %}empty{% endif %}"
+          ></div>
         </div>
-        
+
         <form action="/round_submit" method="post" id="myForm">
-            <!-- User name input -->
-            <div class="form-group">
-              <label for="name"><i class="fas fa-user"></i> Your Name</label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                required
-                {% if submitted or duplicate %}
-                value="{{ name}}"
-                readonly{% endif %}
-                placeholder="Enter your full name"
-              />
-            </div>
-            <div class="form-group">
-                <label for="urn"><i class="fas fa-id-card"></i> Student ID</label>
-                <input
-                  type="text"
-                  id="urn"
-                  name="urn"
-                  required
-                  {%
-                  if
-                  submitted
-                  or
-                  duplicate
-                  %}
-                  value="{{ urn }}"
-                  readonly
-                  {%
-                  endif
-                  %}
-                  placeholder="Enter your university ID number"
-                />
-              </div>
-              <div class="form-group">
-                <label for="email"><i class="fas fa-envelope"></i> Email</label>
-                <input
-                  type="text"
-                  id="email"
-                  name="email"
-                  required
-                  {% if submitted or duplicate %}
-                  value="{{ email }}"
-                  readonly
-                  {% endif %}
-                  placeholder="Enter your email address"
-                />
-              </div>
-          
-            <!-- Loop through questions -->
-            {% for q_index in range(questions|length) %}
-            {% set q = questions[q_index] %}
-            <div class="question">
-              <strong>Q{{ q_index+1 }}. {{ q.question }}</strong>
-              <input type="hidden" name="q{{ q_index }}" value="{{ q.question }}">
-          
-              <!-- Loop through options -->
-              {% for opt in q.options %}
-              <div class="option">
-                <label>
-                  <input
-                    type="radio"
-                    name="q{{ q_index }}"  
-                    value="{{ opt }}"
-                    {% if submitted or duplicate %}
-                      {% if opt == q.selected %}checked{% endif %}
-                      disabled
-                    {% endif %}
-                    required
-                  />
-                  {{ opt }}
-                </label>
-              </div>
-              {% endfor %}
-          
-              <!-- Show feedback if submitted -->
-              {% if submitted %}
-              <div class="feedback {% if q.correct == q.selected %}correct{% else %}wrong{% endif %}">
-                {% if q.correct == q.selected %}
-                  <i class="fas fa-check-circle"></i> Correct
-                {% else %}
-                  <i class="fas fa-times-circle"></i> Wrong
-                {% endif %}
-              </div>
-              {% endif %}
+          <!-- User name input -->
+          <div class="form-group">
+            <label for="name"><i class="fas fa-user"></i> Your Name</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              required
+              {%
+              if
+              submitted
+              or
+              duplicate
+              %}
+              value="{{ name}}"
+              readonly{%
+              endif
+              %}
+              placeholder="Enter your full name"
+            />
+          </div>
+          <div class="form-group">
+            <label for="urn"><i class="fas fa-id-card"></i> URN</label>
+            <input
+              type="number"
+              id="urn"
+              name="urn"
+              required
+              {%
+              if
+              submitted
+              or
+              duplicate
+              %}
+              value="{{ urn }}"
+              readonly
+              {%
+              endif
+              %}
+              placeholder="Enter your university ID number"
+            />
+          </div>
+          <div class="form-group">
+            <label for="email"><i class="fas fa-envelope"></i> Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              required
+              {%
+              if
+              submitted
+              or
+              duplicate
+              %}
+              value="{{ email }}"
+              readonly
+              {%
+              endif
+              %}
+              placeholder="Enter your email address"
+            />
+          </div>
+
+          <!-- Loop through questions -->
+          {% for q_index in range(questions|length) %} {% set q =
+          questions[q_index] %}
+          <div class="question">
+            <strong>Q{{ q_index+1 }}. {{ q.question }}</strong>
+            <input
+              type="hidden"
+              name="q{{ q_index }}"
+              value="{{ q.question }}"
+            />
+
+            <!-- Loop through options -->
+            {% for opt in q.options %}
+            <div class="option">
+              <label>
+                <input type="radio" name="q{{ q_index }}" value="{{ opt }}" {%
+                if submitted or duplicate %} {% if opt == q.selected %}checked{%
+                endif %} disabled {% endif %} required /> {{ opt }}
+              </label>
             </div>
             {% endfor %}
-          
-            <!-- Submit button -->
-            {% if not submitted and not duplicate %}
-            <div class="btn-block" style="margin-top: 2rem;">
-              <button type="submit" class="btn">
-                <i class="fas fa-paper-plane"></i> Submit Quiz
-              </button>
+
+            <!-- Show feedback if submitted -->
+            {% if submitted %}
+            <div
+              class="feedback {% if q.correct == q.selected %}correct{% else %}wrong{% endif %}"
+            >
+              {% if q.correct == q.selected %}
+              <i class="fas fa-check-circle"></i> Correct {% else %}
+              <i class="fas fa-times-circle"></i> Wrong {% endif %}
             </div>
             {% endif %}
-          </form>
-          
+          </div>
+          {% endfor %}
+
+          <!-- Submit button -->
+          {% if not submitted and not duplicate %}
+          <div class="btn-block" style="margin-top: 2rem">
+            <button type="submit" class="btn">
+              <i class="fas fa-paper-plane"></i> Submit Quiz
+            </button>
+          </div>
+          {% endif %}
+        </form>
       </div>
     </div>
     <script>
