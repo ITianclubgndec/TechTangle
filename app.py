@@ -40,12 +40,22 @@ questions = {
 }
 
 DATA_FILE = 'data.jsonl'
+MCQ_DATA_FILE = 'mcq_data.jsonl'
+
+# Check if the files exist, otherwise create them
 if not os.path.exists(DATA_FILE):
     open(DATA_FILE, 'w').close()
 
-def read_jsonl():
+if not os.path.exists(MCQ_DATA_FILE):
+    open(MCQ_DATA_FILE, 'w').close()
+
+def read_jsonl(file_type='quiz'):
+    """
+    Read data from a JSONL file based on the type ('quiz' or 'mcq').
+    """
     data = []
-    with open(DATA_FILE, 'r') as f:
+    file_name = DATA_FILE if file_type == 'quiz' else MCQ_DATA_FILE
+    with open(file_name, 'r') as f:
         for line in f:
             try:
                 data.append(json.loads(line.strip()))
@@ -53,8 +63,12 @@ def read_jsonl():
                 pass
     return data
 
-def write_jsonl_entry(entry):
-    with open(DATA_FILE, 'a') as f:
+def write_jsonl_entry(entry, file_type='quiz'):
+    """
+    Write a new entry to the corresponding JSONL file based on the type ('quiz' or 'mcq').
+    """
+    file_name = DATA_FILE if file_type == 'quiz' else MCQ_DATA_FILE
+    with open(file_name, 'a') as f:
         f.write(json.dumps(entry) + '\n')
 
 @app.route('/')
@@ -69,7 +83,7 @@ def submit():
     email = request.form.get('email') 
     asked_questions = {q: questions[q] for q in request.form if q in questions}
 
-    data = read_jsonl()
+    data = read_jsonl(DATA_FILE)
 
     # Check for duplicate
     for entry in data:
@@ -99,7 +113,7 @@ def submit():
 
     # Save result
     new_entry = {"name": name, "urn": urn,"email":email, "marks": score}
-    write_jsonl_entry(new_entry)
+    write_jsonl_entry(new_entry,DATA_FILE)
 
     return render_template(
         'index.html',
@@ -112,5 +126,136 @@ def submit():
         score=score
     )
 
+questions_round = {
+    "What is the output of print(2 ** 3)?": {
+        "options": ["6", "8", "9", "5"],
+        "answer": "8"
+    },
+    "Which of the following is a mutable data type in Python?": {
+        "options": ["tuple", "str", "list", "int"],
+        "answer": "list"
+    },
+    "What does the 'len()' function do in Python?": {
+        "options": [
+            "Deletes an element",
+            "Returns the length of an object",
+            "Changes the case of a string",
+            "Prints data"
+        ],
+        "answer": "Returns the length of an object"
+    },
+    "What keyword is used to define a function in Python?": {
+        "options": ["function", "define", "def", "fun"],
+        "answer": "def"
+    },
+    "What is the correct file extension for Python files?": {
+        "options": [".pt", ".pyt", ".py", ".p"],
+        "answer": ".py"
+    },
+    "Which of the following is a valid variable name?": {
+        "options": ["1name", "name!", "_name", "class"],
+        "answer": "_name"
+    },
+    "What does '=='' operator do in Python?": {
+        "options": ["Assigns value", "Checks equality", "Checks identity", "None of the above"],
+        "answer": "Checks equality"
+    },
+    "What data type is the result of: 5 / 2 in Python 3?": {
+        "options": ["int", "float", "str", "bool"],
+        "answer": "float"
+    },
+    "Which of these is used to handle exceptions in Python?": {
+        "options": ["if-else", "for", "try-except", "switch-case"],
+        "answer": "try-except"
+    },
+    "What is the output of: print('Hello' + 'World')?": {
+        "options": ["Hello World", "Hello+World", "HelloWorld", "Error"],
+        "answer": "HelloWorld"
+    }
+}
+
+
+@app.route('/round')
+def round():
+    selected = dict(random.sample(list(questions_round.items()), 5))
+
+    question_list = [
+        {
+            "question": q,
+            "options": data["options"]
+        }
+        for q, data in selected.items()
+    ]
+
+    return render_template('round.html', questions=question_list)
+
+@app.route('/round_submit', methods=['POST'])
+def round_submit():
+    name = request.form.get('name')
+    urn = request.form.get('urn')
+    email = request.form.get('email')
+
+    data = read_jsonl(MCQ_DATA_FILE)
+
+    # Check for duplicates
+    for entry in data:
+        if entry['name'] == name or entry['urn'] == urn or entry['email'] == email:
+            asked_questions = []
+            for key in request.form:
+                if key.startswith('q'):
+                    q_index = int(key[1:])
+                    question = request.form.get(f"question{q_index}")
+                    if question and question in questions_round:
+                        asked_questions.append({
+                            "question": question,
+                            "options": questions_round[question]["options"],
+                            "selected": request.form.get(f"q{q_index}"),
+                            "correct": questions_round[question]["answer"]
+                        })
+            return render_template(
+                'round.html',
+                questions=asked_questions,
+                duplicate=True,
+                name=name,
+                urn=urn,
+                email=email
+            )
+
+    score = 0
+    results = []
+
+    for key in request.form:
+        if key.startswith('q') and key[1:].isdigit():
+            q_index = int(key[1:])
+            question = request.form.get(f"question{q_index}")
+            user_answer = request.form.get(key)
+
+            if question and question in questions_round:
+                correct_answer = questions_round[question]["answer"]
+                is_correct = (user_answer.strip().lower() == correct_answer.lower())
+                if is_correct:
+                    score += 1
+
+                results.append({
+                    "question": question,
+                    "options": questions_round[question]["options"],
+                    "selected": user_answer,
+                    "correct": correct_answer,
+                    "is_correct": is_correct
+                })
+
+    # Save new result
+    new_entry = {"name": name, "urn": urn, "email": email, "marks": score}
+    write_jsonl_entry(new_entry,MCQ_DATA_FILE)
+
+    return render_template(
+        'round.html',
+        questions=results,
+        submitted=True,
+        name=name,
+        urn=urn,
+        email=email,
+        score=score
+    )
 if __name__ == '__main__':
     app.run(debug=True)
