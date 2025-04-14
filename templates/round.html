@@ -444,7 +444,7 @@
           <div class="progress-bar {% if submitted or duplicate %}filled{% else %}empty{% endif %}"></div>
         </div>
         
-        <form action="/round_submit" method="post">
+        <form action="/round_submit" method="post" id="myForm">
             <!-- User name input -->
             <div class="form-group">
               <label for="name"><i class="fas fa-user"></i> Your Name</label>
@@ -499,7 +499,7 @@
             {% for q_index in range(questions|length) %}
             {% set q = questions[q_index] %}
             <div class="question">
-              <strong>Q{{ q_index }}. {{ q.question }}</strong>
+              <strong>Q{{ q_index+1 }}. {{ q.question }}</strong>
               <input type="hidden" name="q{{ q_index }}" value="{{ q.question }}">
           
               <!-- Loop through options -->
@@ -546,5 +546,10 @@
           
       </div>
     </div>
+    <script>
+      window.onload = function () {
+        document.getElementById("myForm").reset();
+      };
+    </script>
   </body>
 </html>

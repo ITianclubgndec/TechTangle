@@ -444,7 +444,7 @@
           <div class="progress-bar {% if submitted or duplicate %}filled{% else %}empty{% endif %}"></div>
         </div>
         
-        <form action="/submit" method="post">
+        <form action="/submit" method="post" id="myForm">
           <div class="form-group">
             <label for="name"><i class="fas fa-user"></i> Your Name</label>
             <input
@@ -552,5 +552,11 @@
         </form>
       </div>
     </div>
+    <script>
+      // This ensures the form inputs are cleared on refresh
+      window.onload = function () {
+        document.getElementById("myForm").reset();
+      };
+    </script>
   </body>
 </html>
