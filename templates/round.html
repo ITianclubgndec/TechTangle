@@ -177,7 +177,9 @@
         font-size: 0.95rem;
       }
 
-      input[type="text"] {
+      input[type="text"],
+      input[type="email"],
+      input[type="number"] {
         width: 100%;
         padding: 0.9rem 1.25rem;
         border: 1px solid var(--light-gray);
@@ -188,7 +190,9 @@
         color: var(--dark);
       }
 
-      input[type="text"]:focus {
+      input[type="text"]:focus,
+      input[type="email"]:focus,
+      input[type="number"]:focus {
         border-color: var(--primary);
         box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
         outline: none;
@@ -315,13 +319,12 @@
         animation: shimmer 1.5s infinite;
       }
       .progress-bar.filled {
-  width: 100%;
-}
+        width: 100%;
+      }
 
-.progress-bar.empty {
-  width: 0%;
-}
-
+      .progress-bar.empty {
+        width: 0%;
+      }
 
       @keyframes shimmer {
         0% {
@@ -365,34 +368,34 @@
         }
 
         .logo-left,
-  .logo-right {
-    height: 60px;
-    top: 10px;
-  }
+        .logo-right {
+          height: 60px;
+          top: 10px;
+        }
 
-  .logo-left {
-    left: 10px;
-  }
+        .logo-left {
+          left: 10px;
+        }
 
-  .logo-right {
-    right: 10px;
-  }
+        .logo-right {
+          right: 10px;
+        }
       }
       @media (max-width: 480px) {
-  .logo-left,
-  .logo-right {
-    height: 40px;
-    top: 8px;
-  }
+        .logo-left,
+        .logo-right {
+          height: 40px;
+          top: 8px;
+        }
 
-  .logo-left {
-    left: 6px;
-  }
+        .logo-left {
+          left: 6px;
+        }
 
-  .logo-right {
-    right: 6px;
-  }
-}
+        .logo-right {
+          right: 6px;
+        }
+      }
     </style>
   </head>
   <body>
@@ -441,9 +444,11 @@
         {% endif %}
 
         <div class="progress-container">
-          <div class="progress-bar {% if submitted or duplicate %}filled{% else %}empty{% endif %}"></div>
+          <div
+            class="progress-bar {% if submitted or duplicate %}filled{% else %}empty{% endif %}"
+          ></div>
         </div>
-        
+
         <form action="/round_submit" method="post" id="myForm">
             <!-- User name input -->
             <div class="form-group">
@@ -549,6 +554,13 @@
     <script>
       window.onload = function () {
         document.getElementById("myForm").reset();
+
+        // Restrict URN to numbers only and max 7 digits
+        const urnInput = document.getElementById("urn");
+        urnInput.addEventListener("input", function () {
+          // Remove non-digit characters and limit length
+          this.value = this.value.replace(/\D/g, "").slice(0, 7);
+        });
       };
     </script>
   </body>
