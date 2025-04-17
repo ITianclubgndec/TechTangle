@@ -228,7 +228,7 @@ def round_submit():
         if key.startswith('q') and key[1:].isdigit():
             q_index = int(key[1:])
             question = request.form.get(f"question{q_index}")
-            user_answer = request.form.get(key)
+            user_answer = request.form.get(f"q{q_index}")
 
             if question and question in questions_round:
                 correct_answer = questions_round[question]["answer"]

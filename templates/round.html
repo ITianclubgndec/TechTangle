@@ -500,7 +500,7 @@
             {% set q = questions[q_index] %}
             <div class="question">
               <strong>Q{{ q_index+1 }}. {{ q.question }}</strong>
-              <input type="hidden" name="q{{ q_index }}" value="{{ q.question }}">
+              <input type="hidden" name="question{{ q_index }}" value="{{ q.question }}">
           
               <!-- Loop through options -->
               {% for opt in q.options %}
